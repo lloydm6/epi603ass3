@@ -1,0 +1,219 @@
+---
+title: "lab 3 2019 Q"
+author: "Marshall and Iris"
+date: "Winter 2019"
+output:
+  html_document:
+    css: lab.css
+    highlight: tango
+    theme: cerulean
+    toc: yes
+    toc_float: yes
+  pdf_document:
+    toc: yes
+editor_options: 
+  chunk_output_type: console
+---
+
+<div id="instructions">
+Complete this exercise, and submit answers using R Markdown in RStudio Oopen the document using RStudio, then **save as XXXXXXXXX.Rmd where XXXXXXXXX is your McGill student ID. Then when you knit the file it will create a html file called XXXXXXXXX.html that you will submit** . Remember to have all the files (lab.css, data, Rmd) in your working directory. Enter your answers in the appropriate R code chunks or text answers in the box following the **Type your answer here:**. You can also knitr the document as a pdf file but this loses all the color formating so it is not recommended.  
+
+Grading is based on the points allocated for each question and an extra 5 points for overall style, organization, and clarity. Marks per question are indicated in each question. 
+
+</div>
+This lab is to provide some practical experience in assessing effect modification.   
+
+
+## Questions 1 - 10 points
+We will use the dataset *epib603.csv* that is available on mycourses. Recall this includes a small number of variables from the US NHANES III survey (conducted between 1988-1994), whose participants were then followed up for mortality through December 31, 2006. The binary outcome variable cvd represents the occurrence of a fatal cardiovascular disease event during roughly 15-years of follow-up. We are concerned about obesity as a risk factor for CVD and high cholesterol as a potential effect modifier.      
+ 
+<div id="exercise">
+**Q 1**:  (2 points for each question)        
+a) Read in the dataset and create a binary variable called `obese`, defined based on values of body mass index >=30 kg/m2 vs. <30 kg/m2. Remember BMI = kg/m2. Create the labels `not obese`, `obese` for the levels of the new variable. (3 points)     
+b) Next create a binary factor variable called `hightsc` for high total serum cholesterol vs. not high total serum cholesterol, based on values of the total serum cholesterol variable (`"tsc"`) >= 6.2 millimoles per litre (mmol/l) vs. <6.2 mmol/l. Assign the labels  `low`, `high`for the levels of this new variable  (3 points)         
+c) Display the first 6 lines of the dataset showing the variables: patient id, total cholesterol, BMI, obese and high total cholesterol to make sure your coding is correct.  (2 points)     
+d) How many patients are in this dataset? (2 points) 
+
+</div>
+
+```{r}
+# enter R code here
+
+setwd("/Users/macbook/Documents/McGill School/EPIB 603/EPIB_603_Assignment_3")
+q1.data <- read.csv("603ass3data/epib603.csv")
+
+library(dplyr)
+q1.data <- q1.data %>% mutate(obese = ifelse((wtkg/((htcm*0.01)^2)) < 30, "not obese", "obese")) %>%
+  mutate(hightsc = ifelse(tsc < 6.2, "low", "high"))
+head(q1.data)
+
+no.pats <- nrow(q1.data)
+str(q1.data)
+```
+<div id="body">
+**Type your answer here:** How many patients are in this dataset?    
+
+There are `r no.pats` patients.
+
+</div>
+
+## Questions 2 - 12 points
+<div id="exercise">
+**Q 2** Each question worth 2 points:            
+a) Create and display the 2X2 table of the binary variables of `obese` X `hightsc` for the whole sample.     
+b) Create and display the 2X2 table of the binary variables of `obese` X `hightsc` for the sample who develop `cvd`.      
+c) Calculate the CVD risk for each cell of the 2x2 `obese` X `hightsc` table.      
+d) Present the above table as RR with low chol/ not obese as the reference risk.
+
+e) Calculate the observed and expected joint effects of exposure to obesity and high cholesterol on the CVD outcome variable on the *multiplicative* or risk ratio scale. (4 points)
+f) Provide an interpretation of the observed joint effect and characterize it with respect to the scale of effect measure modification. (2 points)     
+</div>
+
+```{r}
+# enter R code here
+
+#found %$% from stack overflow. Aparently it exposes the names from the previous expression
+library(magrittr)
+table.1 <- table(q1.data$obese, q1.data$hightsc)
+table.1 <- table.1[,c(2,1)]
+table.1
+
+table.2 <- q1.data %>% filter(cvd == "yes") %$% table(obese, hightsc)
+table.2  <- table.2[,c(2,1)]
+table.2
+
+cvd.risk <- table.2 / table.1
+cvd.risk
+
+cvd.rr <- cvd.risk/cvd.risk[1,1]
+cvd.rr
+
+cvd.exp.rr <- round(cvd.rr[2,1]*cvd.rr[1,2], 2)
+cvd.exp.rr
+
+cvd.obs.rr <- round(cvd.rr[2,2], 2)
+cvd.obs.rr
+
+```
+
+<div id="body">
+**Type your answer here:** Provide an interpretation of the observed joint effect and characterize it with respect to the scale of effect measure modification.        
+
+The observed joint effect is a risk ration of `r cvd.obs.rr` whereas the expected joint effect is `r cvd.exp.rr`. This means there is a sub-multiplicative interacion. 
+
+</div>
+ 
+## Questions 3 - 6 points
+<div id="exercise">
+
+**Q 3**:    
+a)	Create a 2X2 risk difference (RD) table as a measure of the effect of  exposure to `obese` and `hightsc` on CVD. (4 points)       
+b) Compare the expected and observed effects and provide an interpretation with respect to additive scale of effect measure modification. (2 points)
+
+</div>
+
+```{r}
+# enter R code here
+
+```
+
+<div id="body">
+**Type your answer here:** Compare the expected and observed effects and provide an interpretation with respect to additive scale of effect measure modification.
+
+</div>
+
+## Questions 4 - 6 points
+
+<div id="exercise">
+
+**Q 4**:     
+1)	Now use the ratio scale to assess effect measure modification on the *additive* (absolute) scale. Using the risk ratios (RRs) you calculated in Question #1, estimate the expected joint effects of exposure to both obese and hightsc on the additive scale and compare the expected joint effect to the observed joint effect. Give your interpretation of these results and compare answers with Q3 above.  (6 points)
+
+</div>
+
+```{r}
+# enter R code here
+
+```
+
+<div id="body">
+**Type your answer here:** Give your interpretation of these results and compare answers with Q3 above. (2 points for correct expected effect, 2 points for interpretation, 2 points for comparison)
+
+</div>
+
+## Questions 5 - 12 points
+<div id="exercise">
+
+**Q 5**:      
+1)	Measures of additive effect measure modification. Use the estimates you derived above to calculate and interpret (i.e., write a sentence):
+a) the `Interaction Contrast` (IC). (3 points) 
+b) the `Relative Excess Risk due to Interaction` (RERI). (3 points) 
+c) the Attributable Proportion due to interaction (AP) using either one of the formulas we discussed in class. (3 points) iv) the `Synergy Index` (SI). (3 points)
+</div>
+
+
+```{r}
+# enter R code here
+
+```
+
+
+<div id="body">
+**Type your answer here:** Write a sentence about the effect measures calculated above and their interpretation
+
+1 point each for calculation and 2 for interpretation
+
+</div>
+
+## Questions 6 - 9 points
+This question examines attributable risk using the `clslowbwt` data found in the `AF` package. Details about this dataset can be found with `help(clslowbwt, package="AF")`. Remember to use the following format    
+![](2X2.png)
+
+
+
+<div id="exercise">
+
+**Q 6:**   Each question worth 3 points      
+a)	Create a 2X2 table of `smoking` versus low birth weith `lbw`.   
+b) Use `epi.2by2` to calculate effect measures including attributable fraction (don't forget to load `epiR`). What is the attibutable fraction?      
+c) What does attributable fraction represent?
+
+</div>
+
+```{r}
+# enter R code here
+
+```
+
+<div id="body">
+**Type your answer here:** 
+b) What is the attibutable fraction?      
+c) What does AF represent?
+</div>
+
+## Questions 7 - 8 points
+The above AF calculation does not take into account the possible confounding from other variables. The `AFglm` function in the `AF` package *does* allow this type of calcuation. Remember the universal `R` syntax for models,
+
+`glm(dependent variable ~ independent variable1 + indepdent variable2 ..., family = nameoffamily, data)`
+
+Use "Help" for `glm` for details on syntax
+
+#![](glm.png)
+
+<div id="exercise">
+**Q 7**:          
+a)	First fit a logistic model using the standard `glm` format where the dependent variable is low birth weight `lwb` and the explanatory variables are `smoker`, `race`, and `age`. Display a summary of the results (3 points)         
+b) What is the odds ratio of low birth weight among smokers, independent of `race` and `age`?   (2 points)          
+c) Use `AFglm()` estimate the proportion of low birthweights that would have been prevented if no mother had smoked during pregnancy.  (3 points) 
+
+</div>
+
+```{r}
+# enter R code here
+
+```
+
+<div id="body">
+**Type your answer here:** b) What is the odds ratio of low birth weight among smokers?  c) estimate the proportion of low birthweights that would have been prevented if no mother had smoked during pregnancy     
+
+</div>
