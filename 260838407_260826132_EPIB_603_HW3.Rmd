@@ -99,7 +99,7 @@ cvd.obs.rr
 <div id="body">
 **Type your answer here:** Provide an interpretation of the observed joint effect and characterize it with respect to the scale of effect measure modification.        
 
-The observed joint effect is a risk ration of `r cvd.obs.rr` whereas the expected joint effect is `r cvd.exp.rr`. This means there is a sub-multiplicative interacion. 
+The observed joint effect is a risk ratio of `r cvd.obs.rr` whereas the expected joint effect is `r cvd.exp.rr`. This means there is a sub-multiplicative interacion. The observed joint effect is less than we would expect considereing the observed individual effects. 
 
 </div>
  
@@ -114,11 +114,20 @@ b) Compare the expected and observed effects and provide an interpretation with 
 
 ```{r}
 # enter R code here
+cvd.rd <-  cvd.risk - cvd.risk[1,1]
 
+cvd.exp.rd <- round(cvd.rd[1,2] + cvd.rd[2,1], 2)
+cvd.exp.rd
+
+cvd.obs.rd <- round(cvd.rd[2,2], 2)
+cvd.obs.rd
 ```
 
 <div id="body">
 **Type your answer here:** Compare the expected and observed effects and provide an interpretation with respect to additive scale of effect measure modification.
+
+The observed joint effect is a risk difference of `r cvd.obs.rd` whereas the expected joint effect is `r cvd.exp.rd`. This means there is a super-additive interacion. The observed joint effect is greater than we would expect considereing the observed individual effects. 
+
 
 </div>
 
@@ -134,10 +143,16 @@ b) Compare the expected and observed effects and provide an interpretation with 
 ```{r}
 # enter R code here
 
+cvd.exp.rra <- cvd.rr[1,2] + cvd.rr[2,1]
+cvd.obs.rra <- cvd.rr[2,2]
+
 ```
 
 <div id="body">
 **Type your answer here:** Give your interpretation of these results and compare answers with Q3 above. (2 points for correct expected effect, 2 points for interpretation, 2 points for comparison)
+
+The observed joint effect is a risk ratio of `r cvd.obs.rra` whereas the expected joint effect of risk ratios on the *additive* scale is `r cvd.exp.rra`. This means there is a sub-additive interacion of the risk ratios, whereas in Q3, we saw that there was a super-additive interaction of te risk *differences*. 
+
 
 </div>
 
@@ -154,6 +169,12 @@ c) the Attributable Proportion due to interaction (AP) using either one of the f
 
 ```{r}
 # enter R code here
+ic <- round(cvd.risk[2,2] - cvd.risk[1,2] - cvd.risk[2,1] + cvd.risk[1,1], 4)
+
+reri <- round(ic/cvd.risk[1,1], 2)
+
+cvd.risk
+cvd.risk.base <- round(cvd.risk[1,1], 3)
 
 ```
 
@@ -162,6 +183,12 @@ c) the Attributable Proportion due to interaction (AP) using either one of the f
 **Type your answer here:** Write a sentence about the effect measures calculated above and their interpretation
 
 1 point each for calculation and 2 for interpretation
+
+a) The interaction contrast is `r ic`. This means that there is some interaction effect because the change in risk for being obese vs not obese is different for those who have high total serum cholesterol compared to those who do not high total serum cholesterol. The IC is positive, which means that there is a super-additive/synergistic effect between obesiety and high total serum cholesterol. We cannot interpret the magnitude of the IC. 
+
+b) The RERI is `r reri`. Since it is not zero, this tells us that there is an interaction between the exposures. Since it is positive, this tells us that the interaction between obesiety and high total serum cholesterol is super-additive/synergistic. The magnitude of the RERI can only be interpreted if we know the baseline risk.......which luckily we do! The baseline risk of cvd is 4.7% and the risk of cvd is increased by 37% 
+
+A public health intervention in the obese group would have a larger impact on those who are obese *and* have high cholesterol than those who are just obese. The same goes for and publich health intervention in the high cholesterol group. 
 
 </div>
 
@@ -182,13 +209,48 @@ c) What does attributable fraction represent?
 
 ```{r}
 # enter R code here
+library(AF)
+help(clslowbwt, package="AF")
+library(epiR)
+
+head(clslowbwt)
+
+q6.data <- clslowbwt %>% mutate(lbwt = ifelse(clslowbwt$lbw == 1, "lbw", "nbw")) %>% 
+  mutate(smoking = ifelse(clslowbwt$smoker == 1, "smoke", "no"))
+q6.data$lbwt <- as.factor(q6.data$lbwt)
+q6.data$smoking <- as.factor(q6.data$smoking)
+
+
+head(q6.data)
+str(q6.data)
+
+
+
+table.6 <- table(q6.data$smoking, q6.data$lbwt)
+table.6 <- table.6[c(2,1),]
+table.6
+
+q6.2by2 <- epi.2by2(table.6, method = "cohort.count")
+q6.AF <- round(q6.2by2$massoc$PAFRisk.strata.wald, 3)
+
+q6.ans <- paste(q6.AF[1], " with a 95% CI of ", q6.AF[2], ",", q6.AF[3])
+
+q6.2by2$massoc$PAFRisk.strata.wald[1]
 
 ```
 
 <div id="body">
 **Type your answer here:** 
-b) What is the attibutable fraction?      
+b) What is the attributable fraction?      
+
+The population attributable fraction is `q6.ans`.
+
 c) What does AF represent?
+
+The population attrbutable fraction is the proportion of the incidence in the total population that is attributable to the exposure. In this case, it is the proportion of the total number of low weight births due to the smokin mom exposure. If we were to eliminate the exposure (ie: no more smoking moms), then there would be `r q6.ans` fewer low weight births in the entire population. There is also the attributable fraction in the exposed, but that refers to the proportion of outcomes due to the exposure in the exposed group only. 
+
+
+
 </div>
 
 ## Questions 7 - 8 points
@@ -211,9 +273,35 @@ c) Use `AFglm()` estimate the proportion of low birthweights that would have bee
 ```{r}
 # enter R code here
 
+head(q6.data)
+str(q6.data)
+
+q7.glm <- glm(data = q6.data, formula = lbw ~ smoker + race + age, family = binomial(link = logit))
+q7.glm.sum <- summary(q7.glm)
+q7.ans.7b <- paste(round(exp(q7.glm.sum$coefficients[2]), 2), " with and 95% CI of ", round(exp(confint(q7.glm)[2,1]), 2), ",", round(exp(confint(q7.glm)[2,2]), 2))
+q7.ans.7b
+  
+
+q7.AF <- AFglm(object = q7.glm, data = q6.data, exposure = "smoker")
+
+q7.AF.sum <- summary(q7.AF)
+q7.AF.sum
+
+q7.ans.7c <- round(q7.AF.sum$AF[1], 2)
+
+q7.AF.sum$AF[2]
+
 ```
 
 <div id="body">
-**Type your answer here:** b) What is the odds ratio of low birth weight among smokers?  c) estimate the proportion of low birthweights that would have been prevented if no mother had smoked during pregnancy     
+**Type your answer here:** 
+b) What is the odds ratio of low birth weight among smokers?  
+
+The odds ratio for smokers is `r q7.ans.7b`, which means that the odds of having a low weight birth in smokers is 1.82 times greater than the odds of having low birth weight in non-smokers.
+
+c) estimate the proportion of low birthweights that would have been prevented if no mother had smoked during pregnancy     
+The proportion of low birthweights that would have been prevented if no moms smoked during pregnancy is `r q7.ans.7c`.
+
+
 
 </div>
