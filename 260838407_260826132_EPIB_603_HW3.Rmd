@@ -36,7 +36,7 @@ d) How many patients are in this dataset? (2 points)
 
 </div>
 
-```{r}
+```{r results='hide', fig.keep='none'}
 # enter R code here
 
 setwd("/Users/macbook/Documents/McGill School/EPIB 603/EPIB_603_Assignment_3")
@@ -45,10 +45,13 @@ q1.data <- read.csv("603ass3data/epib603.csv")
 library(dplyr)
 q1.data <- q1.data %>% mutate(obese = ifelse((wtkg/((htcm*0.01)^2)) < 30, "not obese", "obese")) %>%
   mutate(hightsc = ifelse(tsc < 6.2, "low", "high"))
+```
+
+```{r]}
 head(q1.data)
 
 no.pats <- nrow(q1.data)
-str(q1.data)
+
 ```
 <div id="body">
 **Type your answer here:** How many patients are in this dataset?    
@@ -64,30 +67,41 @@ a) Create and display the 2X2 table of the binary variables of `obese` X `hights
 b) Create and display the 2X2 table of the binary variables of `obese` X `hightsc` for the sample who develop `cvd`.      
 c) Calculate the CVD risk for each cell of the 2x2 `obese` X `hightsc` table.      
 d) Present the above table as RR with low chol/ not obese as the reference risk.
-
 e) Calculate the observed and expected joint effects of exposure to obesity and high cholesterol on the CVD outcome variable on the *multiplicative* or risk ratio scale. (4 points)
 f) Provide an interpretation of the observed joint effect and characterize it with respect to the scale of effect measure modification. (2 points)     
 </div>
 
-```{r}
+```{r results='hide', fig.keep='none'}
 # enter R code here
 
 #found %$% from stack overflow. Aparently it exposes the names from the previous expression
 library(magrittr)
 table.1 <- table(q1.data$obese, q1.data$hightsc)
 table.1 <- table.1[,c(2,1)]
-table.1
 
 table.2 <- q1.data %>% filter(cvd == "yes") %$% table(obese, hightsc)
 table.2  <- table.2[,c(2,1)]
-table.2
 
 cvd.risk <- table.2 / table.1
-cvd.risk
 
 cvd.rr <- cvd.risk/cvd.risk[1,1]
-cvd.rr
 
+```
+
+```{r}
+library(knitr)
+
+kable(table.1, caption = "Entire Sample")
+
+kable(table.2, caption = "With CVD")
+
+kable(cvd.risk, caption = "CVD Risk")
+
+kable(cvd.rr, caption = "Risk Ratio")
+```
+
+
+```{r results='hide', fig.keep='none'}
 cvd.exp.rr <- round(cvd.rr[2,1]*cvd.rr[1,2], 2)
 cvd.exp.rr
 
@@ -99,7 +113,8 @@ cvd.obs.rr
 <div id="body">
 **Type your answer here:** Provide an interpretation of the observed joint effect and characterize it with respect to the scale of effect measure modification.        
 
-The observed joint effect is a risk ratio of `r cvd.obs.rr` whereas the expected joint effect is `r cvd.exp.rr`. This means there is a sub-multiplicative interacion. The observed joint effect is less than we would expect considereing the observed individual effects. 
+The observed joint effect is a risk ratio of `r cvd.obs.rr` whereas the expected joint effect on the multiplicative scale is a risk ratio of `r cvd.exp.rr`. This means there is a sub-multiplicative interacion, though it is weak. The observed joint effect is less than we would expect considering the observed individual effects. It's important to note that the difference between the observed and expected joint effect is small and if we were to consider the confidence intervals around the risk ratios, we would not make a strong conclusion about the joint effect in this case. 
+
 
 </div>
  
@@ -112,7 +127,7 @@ b) Compare the expected and observed effects and provide an interpretation with 
 
 </div>
 
-```{r}
+```{r results='hide', fig.keep='none'}
 # enter R code here
 cvd.rd <-  cvd.risk - cvd.risk[1,1]
 
@@ -123,11 +138,17 @@ cvd.obs.rd <- round(cvd.rd[2,2], 2)
 cvd.obs.rd
 ```
 
+```{r}
+kable(cvd.rd, caption = "CVD Risk Differene")
+```
+
+
 <div id="body">
 **Type your answer here:** Compare the expected and observed effects and provide an interpretation with respect to additive scale of effect measure modification.
 
-The observed joint effect is a risk difference of `r cvd.obs.rd` whereas the expected joint effect is `r cvd.exp.rd`. This means there is a super-additive interacion. The observed joint effect is greater than we would expect considereing the observed individual effects. 
+The observed joint effect is a risk difference of `r cvd.obs.rd` whereas the expected joint effect on the additive scale is a risk difference of `r cvd.exp.rd`. This means there is a super-additive interacion, though it is weak. The observed joint effect is greater than we would expect considereing the observed individual effects. Keep in mind that the difference between the observed and expected joint effect is small and if we were to consider the confidence intervals around the risk differences, we would not make a strong conclusion about the joint effect in this case.
 
+Add uncertainty
 
 </div>
 
@@ -140,19 +161,20 @@ The observed joint effect is a risk difference of `r cvd.obs.rd` whereas the exp
 
 </div>
 
-```{r}
+```{r results='hide', fig.keep='none'}
 # enter R code here
 
-cvd.exp.rra <- cvd.rr[1,2] + cvd.rr[2,1] -1
-cvd.obs.rra <- cvd.rr[2,2]
+cvd.exp.rra <- round(cvd.rr[1,2] + cvd.rr[2,1] - 1, 2)
+cvd.obs.rra <- round(cvd.rr[2,2], 2)
 
 ```
 
 <div id="body">
 **Type your answer here:** Give your interpretation of these results and compare answers with Q3 above. (2 points for correct expected effect, 2 points for interpretation, 2 points for comparison)
 
-The observed joint effect is a risk ratio of `r cvd.obs.rra` whereas the expected joint effect of risk ratios on the *additive* scale is `r cvd.exp.rra`. This means there is a super-additive interacion of the risk ratios, much like in Q3, where we also saw that there was a super-additive interaction of the risk differences. 
+The observed joint effect is a risk ratio of `r cvd.obs.rra` whereas the expected joint effect of risk ratios on the *additive* scale is a risk ratio of `r cvd.exp.rra`. This means there is a super-additive interacion of the risk ratios, much like in Q3, where we also saw that there was a super-additive interaction of the risk differences. Just like in Q3, the super-additive interaciton is weak and we would take a good looooong look at our confidence intervals before thinking about making any strong conclusions about interactions.  
 
+He we have the luxury of knowing the absoute measures (ie: RDs) so we can use the method in Q3 to look at the interaction on the additive scale. If this were a case-control, we would not have these luxurious absolute measures and could ony look at the additive scale with ORs (or RRs as approxiamted by ORs) as we have in Q4.
 
 </div>
 
@@ -163,11 +185,12 @@ The observed joint effect is a risk ratio of `r cvd.obs.rra` whereas the expecte
 1)	Measures of additive effect measure modification. Use the estimates you derived above to calculate and interpret (i.e., write a sentence):
 a) the `Interaction Contrast` (IC). (3 points) 
 b) the `Relative Excess Risk due to Interaction` (RERI). (3 points) 
-c) the Attributable Proportion due to interaction (AP) using either one of the formulas we discussed in class. (3 points) iv) the `Synergy Index` (SI). (3 points)
+c) the Attributable Proportion due to interaction (AP) using either one of the formulas we discussed in class. (3 points) 
+d) the `Synergy Index` (SI). (3 points)
 </div>
 
 
-```{r}
+```{r results='hide', fig.keep='none'}
 # enter R code here
 ic <- round(cvd.risk[2,2] - cvd.risk[1,2] - cvd.risk[2,1] + cvd.risk[1,1], 4)
 
@@ -175,6 +198,11 @@ reri <- round(ic/cvd.risk[1,1], 2)
 
 cvd.risk
 cvd.risk.base <- round(cvd.risk[1,1], 3)
+
+ap.adr <- round(reri/(cvd.rr[2,2] - 1), 2)
+ap.r <- round((cvd.rr[2,2] - cvd.rr[1,2] - cvd.rr[2,1] + 1) / cvd.rr[2,2], 2)
+
+sss <- round((cvd.rr[2,2] - cvd.rr[1,1])/(cvd.rr[2,1] - cvd.rr[1,1] + cvd.rr[1,2] - cvd.rr[1,1]), 2)
 
 ```
 
@@ -184,9 +212,13 @@ cvd.risk.base <- round(cvd.risk[1,1], 3)
 
 1 point each for calculation and 2 for interpretation
 
-a) The interaction contrast is `r ic`. This means that there is some interaction effect because the change in risk for being obese vs not obese is different for those who have high total serum cholesterol compared to those who do not high total serum cholesterol. The IC is positive, which means that there is a super-additive/synergistic effect between obesiety and high total serum cholesterol. We cannot interpret the magnitude of the IC. 
+The interaction contrast is `r ic`. This means that there is some interaction effect because the change in risk for being obese vs not obese is different for those who have high total serum cholesterol compared to those who do not high total serum cholesterol. The IC is positive, which means that there is a super-additive/synergistic effect between obesiety and high total serum cholesterol.
 
-b) The RERI is `r reri`. Since it is not zero, this tells us that there is an interaction between the exposures. Since it is positive, this tells us that the interaction between obesiety and high total serum cholesterol is super-additive/synergistic. The magnitude of the RERI can only be interpreted if we know the baseline risk.......which luckily we do! The baseline risk of cvd is 4.7% and the risk of cvd is increased by 37% 
+The RERI is `r reri`. Since it is not zero, this tells us that there is an interaction between the exposures. Since it is positive, this tells us that the interaction between obesiety and high total serum cholesterol is super-additive/synergistic.
+
+The proportion of the joint effects of both exposures attributable to interaction is `r ap.dr`. This is the proportion of the effect of both exposures on the additive scale (ie: how much greater the *effect* is so the denominator does not include the background level of risk).  The proportion of the risk in the doubly exposed goup attributable to interaction is `r ap.r`, which is the proportion of the disease in the doubly exposed group that is due to the interaction (ie: the denominator includes the backgroup level of risk). Both of these attributable proportions are greater than zero and indicate a super-additive interaction. 
+
+The synergy index is `r sss`, which is the extent to which the risk in doubly exposed group exceeds the background risk when compared how much the the two other singly exposed groups exceed the background risk. In this case, it is greater than 1, so there is a super-additive interaction (ie: the doubly exposed group exceeds the background risk more than the other singly groups exceed it combined). A synergy index over 1 means that the RERI and the easure of additive index are greater than zero. 
 
 A public health intervention in the obese group would have a larger impact on those who are obese *and* have high cholesterol than those who are just obese. The same goes for and publich health intervention in the high cholesterol group. 
 
@@ -207,7 +239,7 @@ c) What does attributable fraction represent?
 
 </div>
 
-```{r}
+```{r results='hide', fig.keep='none'}
 # enter R code here
 library(AF)
 help(clslowbwt, package="AF")
@@ -231,24 +263,38 @@ table.6 <- table.6[c(2,1),]
 table.6
 
 q6.2by2 <- epi.2by2(table.6, method = "cohort.count")
-q6.AF <- round(q6.2by2$massoc$PAFRisk.strata.wald, 3)
+q6.2by2
 
-q6.ans <- paste(q6.AF[1], " with a 95% CI of ", q6.AF[2], ",", q6.AF[3])
+q6.AFP <- round(q6.2by2$massoc$PAFRisk.strata.wald, 3)
+(q6.AFE <- round(q6.2by2$massoc$AFRisk.strata.wald, 3))
+
+
+(q6.ans.P <- paste(q6.AFP[1], " with a 95% CI of ", q6.AFP[2], ",", q6.AFP[3]))
+(q6.ans.E <- paste(q6.AFE[1], " with a 95% CI of ", q6.AFE[2], ",", q6.AFE[3]))
+
+(q6.p.P <- 100*q6.AFP[1])
+q6.p.E <- 100*q6.AFE[1]
+
 
 q6.2by2$massoc$PAFRisk.strata.wald[1]
 
+```
+
+```{r}
+kable(table.6, caption = "Smoking vs Low Birth Weight")
 ```
 
 <div id="body">
 **Type your answer here:** 
 b) What is the attributable fraction?      
 
-The population attributable fraction is `q6.ans`.
+The population attributable fraction is `r q6.ans.P` and the exposed group attributable fraction is `r q6.ans.E`.
 
-c) What does AF represent?
+What does AF represent?
 
-The population attrbutable fraction is the proportion of the incidence in the total population that is attributable to the exposure. In this case, it is the proportion of the total number of low weight births due to the smokin mom exposure. If we were to eliminate the exposure (ie: no more smoking moms), then there would be `r q6.ans` fewer low weight births in the entire population. There is also the attributable fraction in the exposed, but that refers to the proportion of outcomes due to the exposure in the exposed group only. 
+The population attrbutable fraction is the proportion of the incidence in the total population that is attributable to the exposure. In this case, it is the proportion of the total number of low weight births due to the smoking mom exposure. If we were to eliminate the exposure (ie: no more smokin' mom), then low weight births in the entire population would go down by the following proportion: `r q6.p.P`. The number in the exposed group would go down by the following proportion `r q6.p.E`. This is assuming the causality of smoking on low birth weight and no confounding. 
 
+There is also the attributable fraction in the exposed, but that refers to the proportion of outcomes due to the exposure in the exposed group only. 
 
 
 </div>
@@ -270,7 +316,7 @@ c) Use `AFglm()` estimate the proportion of low birthweights that would have bee
 
 </div>
 
-```{r}
+```{r results='hide', fig.keep='none'}
 # enter R code here
 
 head(q6.data)
@@ -278,19 +324,27 @@ str(q6.data)
 
 q7.glm <- glm(data = q6.data, formula = lbw ~ smoker + race + age, family = binomial(link = logit))
 q7.glm.sum <- summary(q7.glm)
-q7.ans.7b <- paste(round(exp(q7.glm.sum$coefficients[2]), 2), " with and 95% CI of ", round(exp(confint(q7.glm)[2,1]), 2), ",", round(exp(confint(q7.glm)[2,2]), 2))
-q7.ans.7b
-  
-plogis(0.6)
+q7.glm.sum
+```
 
-(exp(0.6)/ (1+exp(.6)))
+```{r}
+q7.glm.sum
+```
+
+
+```{r results='hide', fig.keep='none'}
+q7.ans.7b <- paste(round(exp(q7.glm.sum$coefficients[2]), 2), " with and 95% CI of ", round(exp(confint(q7.glm)[2,1]), 2), ",", round(exp(confint(q7.glm)[2,2]), 2))
+
 
 q7.AF <- AFglm(object = q7.glm, data = q6.data, exposure = "smoker")
-
+?AFglm
 q7.AF.sum <- summary(q7.AF)
 q7.AF.sum
 
 q7.ans.7c <- round(q7.AF.sum$AF[1], 2)
+q7.ans.7c
+
+q7.ans.7c <- paste(round(q7.AF.sum$AF[1], 2), "+/-", round(1.96*q7.AF.sum$AF[2], 2))
 
 q7.AF.sum$AF[2]
 
@@ -298,11 +352,11 @@ q7.AF.sum$AF[2]
 
 <div id="body">
 **Type your answer here:** 
-b) What is the odds ratio of low birth weight among smokers?  
+What is the odds ratio of low birth weight among smokers?  
 
 The odds ratio for smokers (adjusted for age and ethnicity) is `r q7.ans.7b`, which means that the odds of having a low weight birth in smokers is 1.82 times greater than the odds of having low birth weight in non-smokers.
 
-c) estimate the proportion of low birthweights that would have been prevented if no mother had smoked during pregnancy     
+Estimate the proportion of low birthweights that would have been prevented if no mother had smoked during pregnancy     
 The proportion of low birthweights that would have been prevented if no moms smoked during pregnancy is `r q7.ans.7c`.
 
 
