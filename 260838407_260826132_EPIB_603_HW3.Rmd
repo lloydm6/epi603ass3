@@ -304,7 +304,7 @@ The population attributable fraction is `r q6.ans.P` and the exposed group attri
 
 What does AF represent?
 
-The population attrbutable fraction is the proportion of the incidence in the total population that is attributable to the exposure. In this case, it is the proportion of the total number of low weight births due to the smoking mom exposure. If we were to eliminate the exposure (ie: no more smokin' mom), then low weight births in the entire population would go down by the following proportion: `r q6.p.P`. The number in the exposed group would go down by the following proportion `r q6.p.E`. This is assuming the causality of smoking on low birth weight and no confounding. 
+The population attrbutable fraction is the proportion of the incidence in the total population that is attributable to the exposure. In this case, it is the proportion of the total number of low weight births due to the smoking mom exposure. If we were to eliminate the exposure (ie: no more smokin' mom), then low weight births in the entire population would go down by `r q6.p.P`%. The number in the exposed group would go down by `r q6.p.E`%. This is assuming the causality of smoking on low birth weight and no confounding. 
 
 There is also the attributable fraction in the exposed, but that refers to the proportion of outcomes due to the exposure in the exposed group only. 
 
@@ -337,6 +337,8 @@ str(q6.data)
 q7.glm <- glm(data = q6.data, formula = lbw ~ smoker + race + age, family = binomial(link = logit))
 q7.glm.sum <- summary(q7.glm)
 q7.glm.sum
+
+str(q6.data)
 ```
 
 ```{r}
@@ -370,7 +372,7 @@ What is the odds ratio of low birth weight among smokers?
 The odds ratio for smokers (adjusted for age and ethnicity) is `r q7.ans.7b`, which means that the odds of having a low weight birth in smokers is 1.82 times greater than the odds of having low birth weight in non-smokers.
 
 Estimate the proportion of low birthweights that would have been prevented if no mother had smoked during pregnancy     
-The proportion of low birthweights that would have been prevented if no moms smoked during pregnancy is `r q7.ans.7c`.
+The proportion of low birthweights that would have been prevented if no moms smoked during pregnancy is `r q7.ans.7c` (adjusted for age and ethnicity).
 
 
 
