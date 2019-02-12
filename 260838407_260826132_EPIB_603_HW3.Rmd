@@ -15,6 +15,18 @@ editor_options:
   chunk_output_type: console
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  warning = FALSE,       # don't show warnings
+  message = FALSE,       # don't show messages (less serious warnings)
+  cache = FALSE,         # set to TRUE to save results from last compilation
+  fig.align = "center",   # center figures
+  fig.asp = 1,          # fig.aspect ratio
+  fig.width = 5       # fig width
+)
+
+```
+
 <div id="instructions">
 Complete this exercise, and submit answers using R Markdown in RStudio Oopen the document using RStudio, then **save as XXXXXXXXX.Rmd where XXXXXXXXX is your McGill student ID. Then when you knit the file it will create a html file called XXXXXXXXX.html that you will submit** . Remember to have all the files (lab.css, data, Rmd) in your working directory. Enter your answers in the appropriate R code chunks or text answers in the box following the **Type your answer here:**. You can also knitr the document as a pdf file but this loses all the color formating so it is not recommended.  
 
@@ -216,7 +228,7 @@ The interaction contrast is `r ic`. This means that there is some interaction ef
 
 The RERI is `r reri`. Since it is not zero, this tells us that there is an interaction between the exposures. Since it is positive, this tells us that the interaction between obesiety and high total serum cholesterol is super-additive/synergistic.
 
-The proportion of the joint effects of both exposures attributable to interaction is `r ap.dr`. This is the proportion of the effect of both exposures on the additive scale (ie: how much greater the *effect* is so the denominator does not include the background level of risk).  The proportion of the risk in the doubly exposed goup attributable to interaction is `r ap.r`, which is the proportion of the disease in the doubly exposed group that is due to the interaction (ie: the denominator includes the backgroup level of risk). Both of these attributable proportions are greater than zero and indicate a super-additive interaction. 
+The proportion of the joint effects of both exposures attributable to interaction is `r ap.adr`. This is the proportion of the effect of both exposures on the additive scale (ie: how much greater the *effect* is so the denominator does not include the background level of risk).  The proportion of the risk in the doubly exposed goup attributable to interaction is `r ap.r`, which is the proportion of the disease in the doubly exposed group that is due to the interaction (ie: the denominator includes the backgroup level of risk). Both of these attributable proportions are greater than zero and indicate a super-additive interaction. 
 
 The synergy index is `r sss`, which is the extent to which the risk in doubly exposed group exceeds the background risk when compared how much the the two other singly exposed groups exceed the background risk. In this case, it is greater than 1, so there is a super-additive interaction (ie: the doubly exposed group exceeds the background risk more than the other singly groups exceed it combined). A synergy index over 1 means that the RERI and the easure of additive index are greater than zero. 
 
@@ -344,7 +356,8 @@ q7.AF.sum
 q7.ans.7c <- round(q7.AF.sum$AF[1], 2)
 q7.ans.7c
 
-q7.ans.7c <- paste(round(q7.AF.sum$AF[1], 2), "+/-", round(1.96*q7.AF.sum$AF[2], 2))
+#not sure about putting this CI on it. 
+#q7.ans.7c <- paste(round(q7.AF.sum$AF[1], 2), "+/-", round(1.96*q7.AF.sum$AF[2], 2))
 
 q7.AF.sum$AF[2]
 
