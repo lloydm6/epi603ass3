@@ -19,10 +19,7 @@ editor_options:
 knitr::opts_chunk$set(
   warning = FALSE,       # don't show warnings
   message = FALSE,       # don't show messages (less serious warnings)
-  cache = FALSE,         # set to TRUE to save results from last compilation
-  fig.align = "center",   # center figures
-  fig.asp = 1,          # fig.aspect ratio
-  fig.width = 5       # fig width
+  cache = FALSE         # set to TRUE to save results from last compilation
 )
 
 ```
@@ -355,13 +352,11 @@ q7.AF <- AFglm(object = q7.glm, data = q6.data, exposure = "smoker")
 q7.AF.sum <- summary(q7.AF)
 q7.AF.sum
 
-q7.ans.7c <- round(q7.AF.sum$AF[1], 2)
+q7.AF.sum$confidence.interval[1]
+
+q7.ans.7c <- paste(round(q7.AF.sum$AF[1], 2), "with a 95% CI of", round(q7.AF.sum$confidence.interval[1], 2), ",", round(q7.AF.sum$confidence.interval[2], 2))
 q7.ans.7c
 
-#not sure about putting this CI on it. 
-#q7.ans.7c <- paste(round(q7.AF.sum$AF[1], 2), "+/-", round(1.96*q7.AF.sum$AF[2], 2))
-
-q7.AF.sum$AF[2]
 
 ```
 
